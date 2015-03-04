@@ -1,7 +1,9 @@
 #!/bin/bash
 
+echo "pre-commit hook start"
+
 # the directory we are interested in
-dirPrefix="tutti-design-master/product/assets/ios"
+dirPrefix="product/assets"
 # svg directory name
 svgName="svg"
 # the replacement for the svg directory
@@ -16,14 +18,14 @@ echo
 git status --porcelain -uno | while IFS= read -r line; do
 # get the full file paths
     f=${line#???}
-# loop over svg files
-    if [[ ${f} == *.svg && ${f} == $dirPrefix* ]] ; then
+# loop over svg files, but we are only interested in the ones in the dirPrefix, and they need to be in the "svg" folder
+    if [[ ${f} == $dirPrefix* && ${f} == */$svgName/*.svg ]] ; then
         echo "Processing $f"
         fileName=${f##*/}
 
 # create any missing directories, otherwise the inkscape export will fail
         dirs=$(dirname $f)
-        dirs=${dirs/$svgName/$replacementName}
+        dirs=$(dirname $dirs)/$replacementName
         mkdir -p $dirs
 
 # build new file path from the processed directory, fileName and suffix
@@ -39,3 +41,5 @@ git status --porcelain -uno | while IFS= read -r line; do
         echo
     fi
 done
+
+echo "pre-commit hook end"
